@@ -1,7 +1,7 @@
 #!/bin/sh
 
-player_1_character="X"
-player_2_character="O"
+player_1_character=""
+player_2_character=""
 
 move=1
 game_on=true
@@ -38,7 +38,8 @@ player_pick() {
 	while true
 	do
 		read square
-		if [[ $square =~ ^-?[0-9]+$ ]] && [[ ${moves[($square-1)]}  =~ ^[0-9]+$ ]]; then break; fi
+		if [[ $square =~ ^-?[0-9]+$ ]] && \
+			[[ ${moves[($square-1)]}  =~ ^[0-9]+$ ]]; then break; fi
 		echo "NOT A VALID SQUARE"
 		echo -n "REENTER SQUARE: "
 	done
@@ -87,7 +88,9 @@ check_winner() {
 }
 
 character_check() {
-	if [[ ${#1} == 1 ]] && [[ ! $1 =~ ^[0-9]+$ ]] && [[ ! $1 =~ [[:cntrl:]] ]]
+	if [[ ${#1} == 1 ]] && \
+		[[ ! $1 =~ ^[0-9]+$ ]] && \
+		[[ ! $1 =~ [[:cntrl:]] ]]
 	then
 		return 1
 	fi
@@ -95,38 +98,18 @@ character_check() {
 }
 
 choose_characters() {
-	while true
-	do
-		echo "PLAYER 1 CHOOSE CHARACTER TO PLAY: "
-		read player_1_character
-		character_check $player_1_character
-		if [[ $? == 1 ]]; then break; fi
-		echo "INVALID CHARACTER: $player_1_character"
-	done
-	
-	while true
-	do
-		echo "PLAYER 2 CHOOSE CHARACTER TO PLAY: "
-		read player_2_character
-		character_check $player_2_character
-		if [[ $? == 1 ]] && [[ $player_2_character != $player_1_character ]]; then break; fi
-		echo "INVALID CHARACTER OR ALREADY TAKEN: $player_2_character"
-	done
-
-: '
 for i in 1 2
 	do
 		while true
 		do
-			echo -n "PLAYER $1 CHOOSE CHARACTER TO PLAY: "
-			var="player_$1"_character
+			echo -n "PLAYER $i CHOOSE CHARACTER TO PLAY: "
+			var="player_$i"_character
 			read ${var}
 			character_check ${!var}
-			if [[ $? == 1 ]] ; then break; fi
+			if [[ $? == 1 ]] && [[ $player_2_character != $player_1_character ]]; then break; fi
 			echo "INVALID CHARACTER: ${!var}"
 		done
 	done
-'
 }
 
 welcome_message
