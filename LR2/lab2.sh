@@ -15,7 +15,7 @@ welcome_message() {
 	echo "========================"
 	sleep 2
 }
-print_board () {
+print_board() {
 	clear
 	echo " ${moves[0]} | ${moves[1]} | ${moves[2]} "
 	echo "-----------"
@@ -25,7 +25,7 @@ print_board () {
 	echo "============="
 }
 
-player_pick(){
+player_pick() {
 	if [[ $(($move % 2)) == 0 ]]
 	then
 		play_character=$player_2_character
@@ -36,26 +36,23 @@ player_pick(){
 	fi
 	
 	read square
-	space=${moves[($square-1)]} 
 
-	if [[ ! $square =~ ^-?[0-9]+$ ]] || [[ ! $space =~ ^[0-9]+$ ]]
-	then 
-		echo "Not a valid square."
+	if [[ ! $square =~ ^-?[0-9]+$ ]] || [[ ! ${moves[($square-1)]}  =~ ^[0-9]+$ ]]; then 
+		echo "Not a valid square"
 		player_pick
 	else
-		moves[($square -1)]=$play_character
-	((move=move+1))
+		moves[($square-1)]=$play_character
+		((move += 1))
 	fi
-	space=${moves[($square-1)]} 
 }
 
 check_match() {
-	if [[ ${moves[$1]} == ${moves[$2]} ]]&& \
+	if [[ ${moves[$1]} == ${moves[$2]} ]] && \
 		[[ ${moves[$2]} == ${moves[$3]} ]]; then
 		game_on=false
 	fi
 	if [ $game_on == false ]; then
-		if [ ${moves[$1]} == 'X' ]; then
+		if [ ${moves[$1]} == $player_1_character ]; then
 			echo "Player one wins!"
 		else
 			echo "Player two wins!"
@@ -63,7 +60,7 @@ check_match() {
 	fi
 }
 
-check_winner(){
+check_winner() {
 	if [ $game_on == false ]; then return; fi
 	check_match 0 1 2
 	if [ $game_on == false ]; then return; fi
@@ -88,7 +85,28 @@ check_winner(){
 	fi
 }
 
+choose_characters() {
+	while true
+	do
+		echo "PLAYER 1 CHOOSE CHARACTER TO PLAY: "
+		read player_1_character
+		if [[ ${#player_1_character} == 1 ]] && [[ ! $player_1_character =~ ^[0-9]+$ ]]; then break; fi
+		echo "INVALID CHARACTER: $player_1_character"
+	done
+	
+	while true
+	do
+		echo "PLAYER 2 CHOOSE CHARACTER TO PLAY: "
+		read player_2_character
+		if [[ ${#player_2_character} == 1 ]] && \
+			[[ ! $player_1_character =~ ^[0-9]+$ ]] && \
+			[[ $player_2_character != $player_1_character ]]; then break; fi
+		echo "INVALID CHARACTER OR ALREADY TAKEN: $player_2_character"
+	done
+}
+
 welcome_message
+choose_characters
 print_board
 while $game_on
 do
